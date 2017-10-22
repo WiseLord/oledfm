@@ -7,6 +7,8 @@
 #include "fonts.h"
 #include "screen.h"
 #include "input.h"
+#include "i2c.h"
+#include "rda580x.h"
 
 #include <util/delay.h>
 #include "pins.h"
@@ -16,6 +18,7 @@ void hwInit()
     glcdInit();
     inputInit();
     screenInit();
+    I2CInit();
 
     // Setup sleep mode
     set_sleep_mode(SLEEP_MODE_PWR_DOWN);
@@ -25,7 +28,10 @@ void hwInit()
     TIMSK0 |= (1 << OCIE0A);    // Input timer compare
     sei();
 
-    return;
+    rda580xInit();
+    rda580xSetVolume(3);
+    rda580xPowerOn();
+    rda580xSetFreq(9950);
 }
 
 void sleep(void)
