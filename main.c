@@ -2,6 +2,9 @@
 #include <avr/interrupt.h>
 #include <avr/sleep.h>
 
+#include "ssd1306.h"
+#include "glcd.h"
+#include "fonts.h"
 #include "screen.h"
 #include "input.h"
 
@@ -10,7 +13,7 @@
 
 void hwInit()
 {
-//    glcdInit();
+    glcdInit();
     inputInit();
     screenInit();
 
@@ -75,8 +78,10 @@ int main(void)
             SET(LED_RED);
             switch (screen) {
             case SCREEN_MAIN:
+                screenShowSetup(CLEAR_ALL);
                 break;
             case SCREEN_SETUP:
+                screenShowMain(CLEAR_ALL);
                 break;
             default:
                 break;

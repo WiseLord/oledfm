@@ -1,6 +1,6 @@
 #include "screen.h"
 
-//#include "glcd.h"
+#include "glcd.h"
 
 #define STR_BUFSIZE                     20
 
@@ -41,11 +41,28 @@ void screenInit(void)
 
 void screenShowMain(ClearMode clear)
 {
+    if (clear == CLEAR_ALL)
+        glcdFill(LCD_COLOR_BLACK);
+    glcdLoadFont(font_ks0066_ru_24, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
+    glcdSetXY(0, 0);
+    glcdWriteString("Main mode");
+
+    glcdSetXY(0, 24);
+    glcdWriteIcon(icon_radio, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
+    glcdDrawRing(50, 50, 10, LCD_COLOR_WHITE);
     screen = SCREEN_MAIN;
 }
 
 void screenShowSetup(ClearMode clear)
 {
+    if (clear == CLEAR_ALL)
+        glcdFill(LCD_COLOR_BLACK);
+    glcdLoadFont(font_ks0066_ru_24, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
+    glcdSetXY(0, 0);
+    glcdWriteString("Setup mode");
+    glcdSetXY(0, 24);
+    glcdWriteIcon(icon_pointer, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
+    glcdDrawRing(80, 50, 10, LCD_COLOR_WHITE);
     screen = SCREEN_SETUP;
 }
 
@@ -62,6 +79,7 @@ void screenUpdate(void)
     default:
         break;
     }
+    glcdUpdateScreen();
 }
 
 Screen screenGet(void)
