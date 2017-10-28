@@ -78,16 +78,12 @@ void rda580xSetBass(uint8_t value)
     rda580xWriteReg(2, reg02);
 }
 
-void rda580xPowerOn(void)
+void rda580xSetPower(uint8_t value)
 {
-    reg02 |= RDA580X_02_ENABLE;
-
-    rda580xWriteReg(2, reg02);
-}
-
-void rda580xPowerOff(void)
-{
-    reg02 &= ~RDA580X_02_ENABLE;
+    if (value)
+        reg02 |= RDA580X_02_ENABLE;
+    else
+        reg02 &= ~RDA580X_02_ENABLE;
 
     rda580xWriteReg(2, reg02);
 }
@@ -141,7 +137,7 @@ uint8_t rda580xGetRDSR()
     return (reg0A & RDA5807_0A_RDSR) ? 1 : 0;
 }
 
-uint16_t rda580xGetFmFreq()
+uint16_t rda580xGetFreq()
 {
     uint16_t chan = reg0A & RDA580X_0A_READCHAN;
 

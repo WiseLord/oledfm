@@ -162,8 +162,7 @@ void rda580xSetVolume(int8_t value);
 void rda580xSetMute(uint8_t value);
 void rda580xSetBass(uint8_t value);
 
-void rda580xPowerOn(void);
-void rda580xPowerOff(void);
+void rda580xSetPower(uint8_t value);
 
 void rda580xUpdateStatus();
 uint8_t rda580xIsStereo();
@@ -173,7 +172,7 @@ uint8_t rda580xGetFmReady();
 uint8_t rda580xGetSTC();
 uint8_t rda580xGetSF();
 uint8_t rda580xGetRDSR();
-uint16_t rda580xGetFmFreq();
+uint16_t rda580xGetFreq();
 
 void rda580xSeek(int8_t direction);
 

@@ -1,3 +1,5 @@
+tuner.c
+tuner.h
 arduinopromini.h
 .astylerc
 font-digits-32.c

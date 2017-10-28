@@ -8,7 +8,7 @@
 #include "screen.h"
 #include "input.h"
 #include "i2c.h"
-#include "rda580x.h"
+#include "tuner.h"
 
 #include <util/delay.h>
 #include "pins.h"
@@ -28,10 +28,10 @@ void hwInit()
     TIMSK0 |= (1 << OCIE0A);    // Input timer compare
     sei();
 
-    rda580xInit();
-    rda580xSetVolume(3);
-    rda580xPowerOn();
-    rda580xSetFreq(9950);
+    tunerInit(TUNER_RDA5807);
+    tunerSetVolume(2);
+    tunerSetPower(1);
+    tunerSetFreq(9950);
 }
 
 void sleep(void)

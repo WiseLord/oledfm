@@ -1,6 +1,7 @@
 #include "screen.h"
 
 #include "glcd.h"
+#include "tuner.h"
 
 #define STR_BUFSIZE                     20
 
@@ -41,15 +42,20 @@ void screenInit(void)
 
 void screenShowMain(ClearMode clear)
 {
+    tunerUpdateStatus();
+
+    uint16_t freq = tunerGetFreq();
+
     if (clear == CLEAR_ALL)
         glcdFill(LCD_COLOR_BLACK);
-    glcdLoadFont(font_ks0066_ru_24, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
-    glcdSetXY(0, 0);
-    glcdWriteString("Main mode");
 
-    glcdSetXY(0, 24);
+    glcdSetXY(0, 4);
     glcdWriteIcon(icon_radio, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
-    glcdDrawRing(50, 50, 10, LCD_COLOR_WHITE);
+
+    glcdLoadFont(font_digits_32, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
+    glcdSetXY(36, 0);
+    glcdWriteString(mkNumString(freq, 6, 2, ' '));
+
     screen = SCREEN_MAIN;
 }
 
@@ -68,7 +74,6 @@ void screenShowSetup(ClearMode clear)
 
 void screenUpdate(void)
 {
-    mkNumString(3, 5, 1, ' ');
     switch (screen) {
     case SCREEN_MAIN:
         screenShowMain(CLEAR_NOTHING);
