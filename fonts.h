@@ -4,6 +4,7 @@
 extern const uint8_t font_ks0066_ru_08[];
 extern const uint8_t font_ks0066_ru_24[];
 extern const uint8_t font_digits_32[];
+extern const uint8_t font_matrix_16[];
 
 extern const uint8_t lcdChar[];
 extern const uint8_t font_lcd_117[];

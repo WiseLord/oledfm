@@ -1,5 +1,8 @@
 eeprom.c
 eeprom.h
+font-matrix-16.c
+rds.c
+rds.h
 tuner.c
 tuner.h
 arduinopromini.h

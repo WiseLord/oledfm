@@ -10,7 +10,7 @@
 #endif
 
 static uint16_t reg02 = RDA580X_02_DHIZ | RDA580X_02_DMUTE | RDA580X_02_SEEKUP | RDA580X_02_SKMODE |
-                        RDA5807_02_RDS_EN | RDA5807_02_NEW_METHOD;
+                        RDA5807_02_RDS_EN | 0;
 static uint16_t reg03 = RDA580X_03_BAND_US_EUROPE | RDA580X_03_SPACE_50;
 static uint16_t reg04 = 0;
 static uint16_t reg05 = (RDA5807_05_SEEKTH & (0b1000 << 8)) | RDA580X_05_LNA_PORT_SEL_LNAP;
@@ -18,6 +18,10 @@ static uint16_t reg07 = RDA5807_07_TH_SOFRBLEND | RDA5807_07_SOFTBLEND_EN;
 
 static uint16_t reg0A = 0;
 static uint16_t reg0B = 0;
+static uint16_t reg0C = 0;
+static uint16_t reg0D = 0;
+static uint16_t reg0E = 0;
+static uint16_t reg0F = 0;
 
 static void rda580xWriteReg(uint8_t reg, uint16_t data)
 {
@@ -114,7 +118,19 @@ void rda580xUpdateStatus()
     reg0A |= I2CReadByte(I2C_ACK);
     reg0B = I2CReadByte(I2C_ACK);
     reg0B <<= 8;
-    reg0B |= I2CReadByte(I2C_NOACK);
+    reg0B |= I2CReadByte(I2C_ACK);
+    reg0C = I2CReadByte(I2C_ACK);
+    reg0C <<= 8;
+    reg0C |= I2CReadByte(I2C_ACK);
+    reg0D = I2CReadByte(I2C_ACK);
+    reg0D <<= 8;
+    reg0D |= I2CReadByte(I2C_ACK);
+    reg0E = I2CReadByte(I2C_ACK);
+    reg0E <<= 8;
+    reg0E |= I2CReadByte(I2C_ACK);
+    reg0F = I2CReadByte(I2C_ACK);
+    reg0F <<= 8;
+    reg0F |= I2CReadByte(I2C_NOACK);
     I2CStop();
 
     Tuner.level = (reg0B & RDA580X_0B_RSSI) >> 9;
@@ -131,6 +147,15 @@ void rda580xUpdateStatus()
     Tuner.ABCD_E = (reg0B & RDA5807_0B_ABCD_E) ? 1 : 0;
     Tuner.BLERA = (reg0B & RDA5807_0B_BLERA) >> 2;
     Tuner.BLERB = (reg0B & RDA5807_0B_BLERB);
+
+    if (Tuner.RDSR && Tuner.RDSS) {
+        if (Tuner.BLERA == 0 && Tuner.BLERB == 0) {
+            Tuner.RDS_A = reg0C;
+            Tuner.RDS_B = reg0D;
+            Tuner.RDS_C = reg0E;
+            Tuner.RDS_D = reg0F;
+        }
+    }
 
     uint16_t chan = reg0A & RDA580X_0A_READCHAN;
 

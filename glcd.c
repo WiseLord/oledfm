@@ -118,6 +118,12 @@ void glcdLoadFont(const uint8_t *font, uint16_t color, uint16_t bgColor)
     memcpy_P(&glcdOpts.fp, font, FONT_HEADER_END);
     glcdOpts.fp.color = color;
     glcdOpts.fp.bgColor = bgColor;
+    glcdOpts.fp.fwd = 0;
+}
+
+void glcdSetFontFixed(uint8_t width)
+{
+    glcdOpts.fp.fwd = width;
 }
 
 void glcdWriteChar(uint8_t code)
@@ -171,7 +177,8 @@ void glcdWriteString(char *string)
     if (*string)
         glcdWriteChar(*string++);
     while (*string) {
-        glcdWriteChar(glcdOpts.fp.ltspPos);
+        if (!glcdOpts.fp.fwd)
+            glcdWriteChar(glcdOpts.fp.ltspPos);
         glcdWriteChar(*string++);
     }
 }

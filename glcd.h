@@ -115,6 +115,7 @@ void glcdSetXY(uint16_t x, uint16_t y);
 void glcdSetY(uint16_t y);
 
 void glcdLoadFont(const uint8_t *font, uint16_t color, uint16_t bgColor);
+void glcdSetFontFixed(uint8_t width);
 void glcdWriteChar(uint8_t code);
 void glcdWriteString(char *string);
 
