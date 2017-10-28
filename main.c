@@ -12,6 +12,7 @@
 
 #include <util/delay.h>
 #include "pins.h"
+#include "eeprom.h"
 
 void hwInit()
 {
@@ -103,13 +104,15 @@ int main(void)
         case BTN_0_LONG:
             switch (Screen) {
             case SCREEN_STANDBY:
+                eepRestoreTuner();
                 tunerSetPower(1);
-                tunerSetFreq(tunerGetFreq());
-                tunerSetVolume(2);
+                tunerSetFreq(Tuner.eep.freq);
+                tunerSetVolume(Tuner.eep.volume);
                 screenSet(SCREEN_MAIN);
                 timerSleepSet(SLEEP_TIMER_WORK);
                 break;
             case SCREEN_MAIN:
+                eepSaveTuner();
                 tunerSetPower(0);
                 screenSet(SCREEN_STANDBY);
                 timerSleepSet(SLEEP_TIMER_STANDBY);
@@ -120,12 +123,18 @@ int main(void)
             break;
         case BTN_1_LONG:
             switch (Screen) {
+            case SCREEN_MAIN:
+                tunerSetVolume(Tuner.eep.volume - 1);
+                break;
             default:
                 break;
             }
             break;
         case BTN_2_LONG:
             switch (Screen) {
+            case SCREEN_MAIN:
+                tunerSetVolume(Tuner.eep.volume + 1);
+                break;
             default:
                 break;
             }

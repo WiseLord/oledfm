@@ -59,7 +59,8 @@ ISR(TIMER0_COMPA_vect, ISR_NOBLOCK)        // TIME_STEP_FREQ = 125 Hz
         sleepTimer--;
 }
 
-ISR (PCINT2_vect) {
+ISR (PCINT2_vect)
+{
     sleepTimer = SLEEP_TIMER_STANDBY;
 }
 

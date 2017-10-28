@@ -3,6 +3,7 @@
 #include <avr/pgmspace.h>
 #include <util/delay.h>
 #include "i2c.h"
+#include "eeprom.h"
 
 #ifdef _RDS
 #include "rds.h"
@@ -52,14 +53,25 @@ void rda580xSetFreq(uint16_t freq)
 
 void rda580xSetVolume(int8_t value)
 {
+    if (value < RDA5807_VOL_MIN)
+        value = RDA5807_VOL_MIN;
+    if (value > RDA5807_VOL_MAX)
+        value = RDA5807_VOL_MAX;
+
+    Tuner.eep.volume = value;
+
     reg05 &= ~RDA580X_05_VOLUME;
-    reg05 |= value;
+    reg05 |= (value - (value ? 1 : 0));
 
     rda580xWriteReg(5, reg05);
+
+    rda580xSetMute(!value);
 }
 
 void rda580xSetMute(uint8_t value)
 {
+    reg02 &= ~RDA580X_02_SEEK;
+
     if (value)
         reg02 &= ~RDA580X_02_DMUTE;
     else
@@ -70,6 +82,8 @@ void rda580xSetMute(uint8_t value)
 
 void rda580xSetBass(uint8_t value)
 {
+    reg02 &= ~RDA580X_02_SEEK;
+
     if (value)
         reg02 |= RDA580X_02_BASS;
     else
@@ -80,6 +94,8 @@ void rda580xSetBass(uint8_t value)
 
 void rda580xSetPower(uint8_t value)
 {
+    reg02 &= ~RDA580X_02_SEEK;
+
     if (value)
         reg02 |= RDA580X_02_ENABLE;
     else
@@ -100,37 +116,27 @@ void rda580xUpdateStatus()
     reg0B <<= 8;
     reg0B |= I2CReadByte(I2C_NOACK);
     I2CStop();
+
+    Tuner.level = (reg0B & RDA580X_0B_RSSI) >> 9;
+
+    Tuner.RDSR = (reg0A & RDA5807_0A_RDSR) ? 1 : 0;
+    Tuner.STC = (reg0A & RDA580X_0A_STC) ? 1 : 0;
+    Tuner.SF = (reg0A & RDA580X_0A_SF) ? 1 : 0;
+    Tuner.RDSS = (reg0A & RDA5807_0A_RDSS) ? 1 : 0;
+    Tuner.BLK_E = (reg0A & RDA5807_0A_BLK_E) ? 1 : 0;
+    Tuner.ST = (reg0A & RDA580X_0A_ST) ? 1 : 0;
+
+    Tuner.FM_TRUE = (reg0B & RDA580X_0B_FM_TRUE) ? 1 : 0;
+    Tuner.FM_READY = (reg0B & RDA580X_0B_FM_READY) ? 1 : 0;
+    Tuner.ABCD_E = (reg0B & RDA5807_0B_ABCD_E) ? 1 : 0;
+    Tuner.BLERA = (reg0B & RDA5807_0B_BLERA) >> 2;
+    Tuner.BLERB = (reg0B & RDA5807_0B_BLERB);
+
+    uint16_t chan = reg0A & RDA580X_0A_READCHAN;
+
+    Tuner.eep.freq = chan * RDA5807_CHAN_SPACING + RDA5807_MIN_FREQ;
 }
 
-uint8_t rda580xIsStereo()
-{
-    return (reg0A & RDA580X_0A_ST) ? 1 : 0;
-}
-
-uint8_t rda580xGetLevel()
-{
-    return (reg0B & RDA580X_0B_RSSI) >> 9;
-}
-
-uint8_t rda580xGetFmReady()
-{
-    return (reg0B & RDA580X_0B_FM_READY) ? 1 : 0;
-}
-
-uint8_t rda580xIsStation()
-{
-    return (reg0B & RDA580X_0B_FM_TRUE) ? 1 : 0;
-}
-
-uint8_t rda580xGetSTC()
-{
-    return (reg0A & RDA580X_0A_STC) ? 1 : 0;
-}
-
-uint8_t rda580xGetSF()
-{
-    return (reg0A & RDA580X_0A_SF) ? 1 : 0;
-}
 
 uint8_t rda580xGetRDSR()
 {

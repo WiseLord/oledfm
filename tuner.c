@@ -14,91 +14,79 @@ typedef struct {
     void (*SetMute)(uint8_t value);
     void (*SetBass)(uint8_t value);
     void (*UpdateStatus)();
-    uint16_t (*GetFreq)();
-} Tuner_t;
+} TunerClass_t;
 
-static Tuner_t tuner;
+static TunerClass_t TunerClass;
 
 void tunerInit(TunerIC ic)
 {
-    tuner.Init = NULL;
-    tuner.SetPower = NULL;
-    tuner.SetFreq = NULL;
-    tuner.Seek = NULL;
-    tuner.SetVolume = NULL;
-    tuner.SetMute = NULL;
-    tuner.SetBass = NULL;
-    tuner.UpdateStatus = NULL;
-    tuner.GetFreq = NULL;
+    Tuner.eep.ic = ic;
+    TunerClass.Init = NULL;
+    TunerClass.SetPower = NULL;
+    TunerClass.SetFreq = NULL;
+    TunerClass.Seek = NULL;
+    TunerClass.SetVolume = NULL;
+    TunerClass.SetMute = NULL;
+    TunerClass.SetBass = NULL;
+    TunerClass.UpdateStatus = NULL;
 
-    switch (ic) {
+    switch (Tuner.eep.ic) {
     case TUNER_RDA5807:
-        tuner.Init = rda580xInit;
-        tuner.SetPower = rda580xSetPower;
-        tuner.SetFreq = rda580xSetFreq;
-        tuner.Seek = rda580xSeek;
-        tuner.SetVolume = rda580xSetVolume;
-        tuner.SetMute = rda580xSetMute;
-        tuner.SetBass = rda580xSetBass;
-        tuner.UpdateStatus = rda580xUpdateStatus;
-        tuner.GetFreq = rda580xGetFreq;
+        TunerClass.Init = rda580xInit;
+        TunerClass.SetPower = rda580xSetPower;
+        TunerClass.SetFreq = rda580xSetFreq;
+        TunerClass.Seek = rda580xSeek;
+        TunerClass.SetVolume = rda580xSetVolume;
+        TunerClass.SetMute = rda580xSetMute;
+        TunerClass.SetBass = rda580xSetBass;
+        TunerClass.UpdateStatus = rda580xUpdateStatus;
         break;
     default:
         break;
     }
 
-    if (tuner.Init)
-        tuner.Init();
+    if (TunerClass.Init)
+        TunerClass.Init();
 }
 
 void tunerSetPower(uint8_t value)
 {
-    if (tuner.SetPower)
-        tuner.SetPower(value);
+    if (TunerClass.SetPower)
+        TunerClass.SetPower(value);
 }
 
 void tunerSetFreq(uint16_t value)
 {
-    if (tuner.SetFreq)
-        tuner.SetFreq(value);
+    if (TunerClass.SetFreq)
+        TunerClass.SetFreq(value);
 }
 
 void tunerSeek(int8_t direction)
 {
-    if (tuner.Seek)
-        tuner.Seek(direction);
+    if (TunerClass.Seek)
+        TunerClass.Seek(direction);
 }
 
 void tunerSetVolume(int8_t value)
 {
-    if (tuner.SetVolume)
-        tuner.SetVolume(value);
+    if (TunerClass.SetVolume)
+        TunerClass.SetVolume(value);
 }
 
 void tunerSetMute(uint8_t value)
 {
-    if (tuner.SetMute)
-        tuner.SetMute(value);
+    if (TunerClass.SetMute)
+        TunerClass.SetMute(value);
 }
 
 void tunerSetBass(uint8_t value)
 {
-    if (tuner.SetBass)
-        tuner.SetBass(value);
+    if (TunerClass.SetBass)
+        TunerClass.SetBass(value);
 }
 
 void tunerUpdateStatus()
 {
-    if (tuner.UpdateStatus)
-        tuner.UpdateStatus();
-}
-
-uint16_t tunerGetFreq()
-{
-    uint16_t ret = 0;
-
-    if (tuner.GetFreq)
-        ret = tuner.GetFreq();
-
-    return ret;
+    if (TunerClass.UpdateStatus)
+        TunerClass.UpdateStatus();
 }

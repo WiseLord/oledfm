@@ -18,7 +18,5 @@ void tunerSetVolume(int8_t value);
 void tunerSetMute(uint8_t value);
 void tunerSetBass(uint8_t value);
 void tunerUpdateStatus();
-uint16_t tunerGetFreq();
-
 
 #endif // TUNER_H
