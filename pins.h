@@ -16,15 +16,15 @@
 #define CLR(x)              PORT(x) &= ~x ## _LINE
 
 // Buttons
-#define BUTTON_1            ARDUINO_D4
-#define BUTTON_1_LINE       ARDUINO_D4_LINE
-#define BUTTON_2            ARDUINO_D5
-#define BUTTON_2_LINE       ARDUINO_D5_LINE
-#define BUTTON_3            ARDUINO_D6
-#define BUTTON_3_LINE       ARDUINO_D6_LINE
-#define PCINT_BUTTON1       PCINT20
-#define PCINT_BUTTON2       PCINT21
-#define PCINT_BUTTON3       PCINT22
+#define BUTTON_0            ARDUINO_D4
+#define BUTTON_0_LINE       ARDUINO_D4_LINE
+#define BUTTON_1            ARDUINO_D5
+#define BUTTON_1_LINE       ARDUINO_D5_LINE
+#define BUTTON_2            ARDUINO_D6
+#define BUTTON_2_LINE       ARDUINO_D6_LINE
+#define PCINT_BUTTON0       PCINT20
+#define PCINT_BUTTON1       PCINT21
+#define PCINT_BUTTON2       PCINT22
 
 // LED
 #define LED_RED             ARDUINO_D13

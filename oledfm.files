@@ -1,3 +1,5 @@
+eeprom.c
+eeprom.h
 tuner.c
 tuner.h
 arduinopromini.h

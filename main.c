@@ -22,120 +22,116 @@ void hwInit()
 
     // Setup sleep mode
     set_sleep_mode(SLEEP_MODE_PWR_DOWN);
-    PCMSK2 |= (BUTTON_1_LINE | BUTTON_2_LINE | BUTTON_3_LINE);
 
     // Interrupts
     TIMSK0 |= (1 << OCIE0A);    // Input timer compare
     sei();
 
     tunerInit(TUNER_RDA5807);
-    tunerSetVolume(2);
-    tunerSetPower(1);
-    tunerSetFreq(9950);
+
+    OUT(LED_RED);
 }
 
 void sleep(void)
 {
     // Prepare sleep
-//    glcdSleep();
     TIMSK0 &= ~(1 << OCIE0A);   // Input timer compare disable
+
+    PCMSK2 = BUTTON_0_LINE | BUTTON_1_LINE | BUTTON_2_LINE;
+    if (Screen == SCREEN_STANDBY)
+        PCMSK2 = BUTTON_0_LINE;
     PCICR |= (1<<PCIE2);        // Buttons interrupt enable
 
+    SET(LED_RED);
+    glcdSleep();
     // Sleep
     sleep_mode();
+    glcdWakeup();
+    CLR(LED_RED);
 
     // Wakeup
     PCICR &= ~(1<<PCIE2);       // Buttons interrupt disable
     TIMSK0 |= (1 << OCIE0A);    // Input timer compare enable
-//    glcdInit();
 }
 
 int main(void)
 {
-    OUT(LED_RED);
-
     hwInit();
-    screenShowMain(CLEAR_ALL);
+    screenSet(SCREEN_STANDBY);
+    screenUpdate();
+    timerSleepSet(SLEEP_TIMER_STANDBY);
 
     while (1) {
-        Screen screen = screenGet();
         uint8_t btnCmd = getBtnCmd();
 
-        if (measureGetSleepTimer() == 0) {
-            btnCmd = BTN_STATE_0;
+        if (timerSleepGet() == 0) {
             sleep();
         }
 
-        if (btnCmd)
-            measureResetSleepTimer();
+        if (btnCmd) {
+            if (Screen == SCREEN_STANDBY)
+                timerSleepSet(SLEEP_TIMER_STANDBY);
+            else
+                timerSleepSet(SLEEP_TIMER_WORK);
+        }
 
         switch (btnCmd) {
         case BTN_0:
-            switch (screen) {
-            case SCREEN_MAIN:
-                break;
-            case SCREEN_SETUP:
-                break;
+            switch (Screen) {
             default:
                 break;
             }
             break;
         case BTN_1:
-            SET(LED_RED);
-            switch (screen) {
+            switch (Screen) {
             case SCREEN_MAIN:
-                screenShowSetup(CLEAR_ALL);
-                break;
-            case SCREEN_SETUP:
-                screenShowMain(CLEAR_ALL);
+                tunerSeek(-1);
                 break;
             default:
                 break;
             }
             break;
         case BTN_2:
-            CLR(LED_RED);
-            switch (screen) {
+            switch (Screen) {
             case SCREEN_MAIN:
-                break;
-            case SCREEN_SETUP:
+                tunerSeek(+1);
                 break;
             default:
                 break;
             }
             break;
         case BTN_0_LONG:
-            switch (screen) {
-            case SCREEN_MAIN:
+            switch (Screen) {
+            case SCREEN_STANDBY:
+                tunerSetPower(1);
+                tunerSetFreq(tunerGetFreq());
+                tunerSetVolume(2);
+                screenSet(SCREEN_MAIN);
+                timerSleepSet(SLEEP_TIMER_WORK);
                 break;
-            case SCREEN_SETUP:
+            case SCREEN_MAIN:
+                tunerSetPower(0);
+                screenSet(SCREEN_STANDBY);
+                timerSleepSet(SLEEP_TIMER_STANDBY);
                 break;
             default:
                 break;
             }
             break;
         case BTN_1_LONG:
-            switch (screen) {
-            case SCREEN_MAIN:
-                break;
-            case SCREEN_SETUP:
-                break;
+            switch (Screen) {
             default:
                 break;
             }
             break;
         case BTN_2_LONG:
-            switch (screen) {
-            case SCREEN_MAIN:
-                break;
-            case SCREEN_SETUP:
-                break;
+            switch (Screen) {
             default:
                 break;
             }
             break;
         case BTN_1_LONG | BTN_2_LONG:
-            switch (screen) {
+            switch (Screen) {
             default:
                 break;
             }

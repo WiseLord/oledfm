@@ -18,13 +18,14 @@
 #define LONG_PRESS              96
 #define AUTOREPEAT              60
 
-#define SLEEP_TIMER             1250  // 10 sec
+#define SLEEP_TIMER_WORK        1250  // 10 sec
+#define SLEEP_TIMER_STANDBY     250   // 2 sec
 
 void inputInit(void);
 
 uint8_t getBtnCmd(void);
 
-uint16_t measureGetSleepTimer(void);
-void measureResetSleepTimer();
+uint16_t timerSleepGet(void);
+void timerSleepSet(uint16_t value);
 
 #endif // INPUT_H

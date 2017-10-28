@@ -5,7 +5,7 @@
 
 #define STR_BUFSIZE                     20
 
-static Screen screen = SCREEN_END;
+Screen_t Screen = SCREEN_END;
 
 static char strbuf[STR_BUFSIZE + 1];
 
@@ -40,14 +40,17 @@ void screenInit(void)
 {
 }
 
-void screenShowMain(ClearMode clear)
+static void drawScreenStandby()
+{
+    glcdSetXY(56, 20);
+    glcdWriteIcon(icon_radio, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
+}
+
+static void drawScreenMain()
 {
     tunerUpdateStatus();
 
     uint16_t freq = tunerGetFreq();
-
-    if (clear == CLEAR_ALL)
-        glcdFill(LCD_COLOR_BLACK);
 
     glcdSetXY(0, 4);
     glcdWriteIcon(icon_radio, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
@@ -55,39 +58,30 @@ void screenShowMain(ClearMode clear)
     glcdLoadFont(font_digits_32, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
     glcdSetXY(36, 0);
     glcdWriteString(mkNumString(freq, 6, 2, ' '));
-
-    screen = SCREEN_MAIN;
 }
 
-void screenShowSetup(ClearMode clear)
+void screenSet(uint8_t value)
 {
-    if (clear == CLEAR_ALL)
+    if (Screen != value)
         glcdFill(LCD_COLOR_BLACK);
-    glcdLoadFont(font_ks0066_ru_24, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
-    glcdSetXY(0, 0);
-    glcdWriteString("Setup mode");
-    glcdSetXY(0, 24);
-    glcdWriteIcon(icon_pointer, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
-    glcdDrawRing(80, 50, 10, LCD_COLOR_WHITE);
-    screen = SCREEN_SETUP;
-}
 
-void screenUpdate(void)
-{
-    switch (screen) {
-    case SCREEN_MAIN:
-        screenShowMain(CLEAR_NOTHING);
+    switch (value) {
+    case SCREEN_STANDBY:
+        drawScreenStandby();
         break;
-    case SCREEN_SETUP:
-        screenShowSetup(CLEAR_NOTHING);
+    case SCREEN_MAIN:
+        drawScreenMain();
         break;
     default:
         break;
     }
-    glcdUpdateScreen();
+
+    Screen = value;
 }
 
-Screen screenGet(void)
+void screenUpdate(void)
 {
-    return screen;
+    screenSet(Screen);
+
+    glcdUpdateScreen();
 }

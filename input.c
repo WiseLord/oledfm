@@ -5,18 +5,18 @@
 #include "pins.h"
 
 static volatile uint8_t btnCmd = 0;         // Command buffer
-static volatile uint16_t sleepTimer = SLEEP_TIMER;
+static volatile uint16_t sleepTimer = SLEEP_TIMER_WORK;
 
 void inputInit(void)
 {
     // Buttons as inputs
+    IN(BUTTON_0);
     IN(BUTTON_1);
     IN(BUTTON_2);
-    IN(BUTTON_3);
     // Enable pull-up resistors
+    SET(BUTTON_0);
     SET(BUTTON_1);
     SET(BUTTON_2);
-    SET(BUTTON_3);
 
     TCCR0A = (1 << WGM01);                  // CTC mode
     TCCR0B = (1 << CS02) | (1 << CS00);     // PSK = 1024
@@ -30,11 +30,11 @@ ISR(TIMER0_COMPA_vect, ISR_NOBLOCK)        // TIME_STEP_FREQ = 125 Hz
 
     uint8_t btnNow = BTN_STATE_0;
 
-    if (~PIN(BUTTON_1) & BUTTON_1_LINE)
+    if (~PIN(BUTTON_0) & BUTTON_0_LINE)
         btnNow |= BTN_0;
-    if (~PIN(BUTTON_2) & BUTTON_2_LINE)
+    if (~PIN(BUTTON_1) & BUTTON_1_LINE)
         btnNow |= BTN_1;
-    if (~PIN(BUTTON_3) & BUTTON_3_LINE)
+    if (~PIN(BUTTON_2) & BUTTON_2_LINE)
         btnNow |= BTN_2;
 
     // If button event has happened, place it to command buffer
@@ -43,7 +43,8 @@ ISR(TIMER0_COMPA_vect, ISR_NOBLOCK)        // TIME_STEP_FREQ = 125 Hz
             btnCnt++;
             if (btnCnt == LONG_PRESS) {
                 btnCmd = (btnPrev << 4);
-                btnCnt = LONG_PRESS - AUTOREPEAT;
+                if (btnNow != BTN_0)
+                    btnCnt = LONG_PRESS - AUTOREPEAT;
             }
         } else {
             btnPrev = btnNow;
@@ -59,7 +60,7 @@ ISR(TIMER0_COMPA_vect, ISR_NOBLOCK)        // TIME_STEP_FREQ = 125 Hz
 }
 
 ISR (PCINT2_vect) {
-    sleepTimer = SLEEP_TIMER;
+    sleepTimer = SLEEP_TIMER_STANDBY;
 }
 
 uint8_t getBtnCmd()
@@ -70,12 +71,12 @@ uint8_t getBtnCmd()
     return ret;
 }
 
-uint16_t measureGetSleepTimer(void)
+uint16_t timerSleepGet(void)
 {
     return sleepTimer;
 }
 
-void measureResetSleepTimer()
+void timerSleepSet(uint16_t value)
 {
-    sleepTimer = SLEEP_TIMER;
+    sleepTimer = value;
 }

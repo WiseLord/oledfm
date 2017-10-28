@@ -13,7 +13,10 @@ typedef enum {
 void tunerInit(TunerIC ic);
 void tunerSetPower(uint8_t value);
 void tunerSetFreq(uint16_t value);
+void tunerSeek(int8_t direction);
 void tunerSetVolume(int8_t value);
+void tunerSetMute(uint8_t value);
+void tunerSetBass(uint8_t value);
 void tunerUpdateStatus();
 uint16_t tunerGetFreq();
 

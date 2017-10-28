@@ -91,6 +91,7 @@ extern GlcdOpts glcdOpts;
 #elif GLCD_TYPE == 1306
 #define glcdInit()                              ssd1306Init()
 #define glcdSleep()                             ssd1306Sleep()
+#define glcdWakeup()                            ssd1306Wakeup()
 #define glcdDrawPixel(x, y, color)              ssd1306DrawPixel(x, y, color)
 #define glcdDrawRectangle(x0, y0, x1, y1, clr)  ssd1306DrawRectangle(x0, y0, x1, y1, clr)
 #define glcdDrawColorMap()                      ssd1306DrawColorMap()

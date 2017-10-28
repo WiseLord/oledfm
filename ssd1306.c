@@ -104,9 +104,23 @@ static void ssd1306SendCmd(uint8_t cmd)
     return;
 }
 
+static void ssd1306Clear(void)
+{
+    uint16_t i;
+    uint8_t *fbP = fb;
+
+    for (i = 0; i < SSD1306_BUFFERSIZE; i++)
+        *fbP++ = 0x00;
+
+    return;
+}
+
 void ssd1306Init(void)
 {
     uint8_t i;
+
+    ssd1306Clear();
+    ssd1306UpdateFb();
 
     _I2CStart(SSD1306_I2C_ADDR);
     _I2CWriteByte(SSD1306_I2C_COMMAND);
@@ -125,12 +139,22 @@ void ssd1306Init(void)
 
 void ssd1306Sleep(void)
 {
-    // TODO
+    _I2CStart(SSD1306_I2C_ADDR);
+    _I2CWriteByte(SSD1306_I2C_COMMAND);
+
+    ssd1306SendCmd(SSD1306_DISPLAY_OFF);
+
+    _I2CStop();
 }
 
 void ssd1306Wakeup(void)
 {
-    // TODO
+    _I2CStart(SSD1306_I2C_ADDR);
+    _I2CWriteByte(SSD1306_I2C_COMMAND);
+
+    ssd1306SendCmd(SSD1306_DISPLAY_ON);
+
+    _I2CStop();
 }
 
 void ssd1306DrawPixel(uint16_t x, uint16_t y, uint16_t color)
@@ -209,9 +233,9 @@ void ssd1306WriteIcon(const uint8_t *icon, uint16_t color, uint16_t bgColor)
             pgmData = pgm_read_byte(icon + (width * j) + i);
             for (k = 0; k < 8; k++) {
                 if (pgmData & 0x01) {
-                    ssd1306DrawPixel(glcdOpts.x + i, glcdOpts.y + (8 * j + k), glcdOpts.fp.color);
+                    ssd1306DrawPixel(glcdOpts.x + i, glcdOpts.y + (8 * j + k), color);
                 } else {
-                    ssd1306DrawPixel(glcdOpts.x + i, glcdOpts.y + (8 * j + k), glcdOpts.fp.bgColor);
+                    ssd1306DrawPixel(glcdOpts.x + i, glcdOpts.y + (8 * j + k), bgColor);
                 }
                 pgmData >>= 1;
             }
@@ -244,17 +268,6 @@ void ssd1306UpdateFb(void)
         _I2CWriteByte(*fbP++);
 
     _I2CStop();
-
-    return;
-}
-
-void ssd1306Clear(void)
-{
-    uint16_t i;
-    uint8_t *fbP = fb;
-
-    for (i = 0; i < SSD1306_BUFFERSIZE; i++)
-        *fbP++ = 0x00;
 
     return;
 }

@@ -4,11 +4,14 @@
 #include <inttypes.h>
 
 typedef enum {
+    SCREEN_STANDBY,
     SCREEN_MAIN,
     SCREEN_SETUP,
 
     SCREEN_END
-} Screen;
+} Screen_t;
+
+extern Screen_t Screen;
 
 typedef enum {
     CLEAR_NOTHING   = 0,
@@ -19,10 +22,8 @@ typedef enum {
 
 void screenInit(void);
 
-void screenShowMain(ClearMode clear);
-void screenShowSetup(ClearMode clear);
+void screenSet(uint8_t value);
 
 void screenUpdate(void);
-Screen screenGet(void);
 
 #endif // SCREEN_H
