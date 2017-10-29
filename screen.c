@@ -63,11 +63,14 @@ static void drawScreenMain()
     glcdSetXY(104, 40);
     glcdWriteIcon(Tuner.eep.volume ? icon_volume : icon_mute, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
 
-    rdsDecode();
     glcdLoadFont(font_matrix_16, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
     glcdSetFontFixed(12);
     glcdSetXY(0, 48);
-    glcdWriteString(rdsPsText());
+    glcdWriteString(rdsData.ps);
+
+    glcdLoadFont(font_ks0066_ru_08, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
+    glcdSetXY(0, 36);
+    glcdWriteString(rdsData.text);
 }
 
 void screenSet(uint8_t value)

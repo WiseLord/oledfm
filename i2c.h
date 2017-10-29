@@ -15,4 +15,6 @@ void I2CStop(void);
 void I2CWriteByte(uint8_t data);
 uint8_t I2CReadByte(uint8_t ack);
 
+uint16_t I2CReadWord(uint8_t ack);
+
 #endif // I2C_H

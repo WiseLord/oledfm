@@ -165,7 +165,6 @@ void rda580xSetBass(uint8_t value);
 void rda580xSetPower(uint8_t value);
 
 void rda580xUpdateStatus();
-//uint16_t rda580xGetFreq();
 
 void rda580xSeek(int8_t direction);
 

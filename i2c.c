@@ -78,3 +78,14 @@ uint8_t I2CReadByte(uint8_t ack)
 
 	return TWDR;
 }
+
+uint16_t I2CReadWord(uint8_t ack)
+{
+    uint16_t ret;
+
+    ret = I2CReadByte(I2C_ACK);
+    ret <<= 8;
+    ret |= I2CReadByte(ack);
+
+    return ret;
+}

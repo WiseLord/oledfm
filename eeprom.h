@@ -13,23 +13,16 @@ typedef struct {
     EepTuner_t eep;
     uint8_t level;
 
-    uint8_t RDSR:1;
     uint8_t STC:1;
     uint8_t SF:1;
-    uint8_t RDSS:1;
     uint8_t BLK_E:1;
     uint8_t ST:1;
 
     uint8_t FM_TRUE:1;
     uint8_t FM_READY:1;
-    uint8_t ABCD_E:1;
-    uint8_t BLERA:2;
-    uint8_t BLERB:2;
 
-    uint16_t RDS_A;
-    uint16_t RDS_B;
-    uint16_t RDS_C;
-    uint16_t RDS_D;
+    uint8_t rdsReady:1;
+    uint8_t rdsBlockE:1;
 } Tuner_t;
 
 extern Tuner_t Tuner;

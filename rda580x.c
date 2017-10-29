@@ -5,9 +5,7 @@
 #include "i2c.h"
 #include "eeprom.h"
 
-#ifdef _RDS
 #include "rds.h"
-#endif
 
 static uint16_t reg02 = RDA580X_02_DHIZ | RDA580X_02_DMUTE | RDA580X_02_SEEKUP | RDA580X_02_SKMODE |
                         RDA5807_02_RDS_EN | 0;
@@ -18,10 +16,6 @@ static uint16_t reg07 = RDA5807_07_TH_SOFRBLEND | RDA5807_07_SOFTBLEND_EN;
 
 static uint16_t reg0A = 0;
 static uint16_t reg0B = 0;
-static uint16_t reg0C = 0;
-static uint16_t reg0D = 0;
-static uint16_t reg0E = 0;
-static uint16_t reg0F = 0;
 
 static void rda580xWriteReg(uint8_t reg, uint16_t data)
 {
@@ -53,6 +47,8 @@ void rda580xSetFreq(uint16_t freq)
 
     rda580xWriteReg(2, reg02);
     rda580xWriteReg(3, reg03);
+
+    rdsClear();
 }
 
 void rda580xSetVolume(int8_t value)
@@ -106,6 +102,8 @@ void rda580xSetPower(uint8_t value)
         reg02 &= ~RDA580X_02_ENABLE;
 
     rda580xWriteReg(2, reg02);
+
+    rdsClear();
 }
 
 void rda580xUpdateStatus()
@@ -113,66 +111,40 @@ void rda580xUpdateStatus()
     I2CStart(RDA5807M_I2C_ADDR);
     I2CWriteByte(0x0A);
     I2CStart(RDA5807M_I2C_ADDR | I2C_READ);
-    reg0A = I2CReadByte(I2C_ACK);
-    reg0A <<= 8;
-    reg0A |= I2CReadByte(I2C_ACK);
-    reg0B = I2CReadByte(I2C_ACK);
-    reg0B <<= 8;
-    reg0B |= I2CReadByte(I2C_ACK);
-    reg0C = I2CReadByte(I2C_ACK);
-    reg0C <<= 8;
-    reg0C |= I2CReadByte(I2C_ACK);
-    reg0D = I2CReadByte(I2C_ACK);
-    reg0D <<= 8;
-    reg0D |= I2CReadByte(I2C_ACK);
-    reg0E = I2CReadByte(I2C_ACK);
-    reg0E <<= 8;
-    reg0E |= I2CReadByte(I2C_ACK);
-    reg0F = I2CReadByte(I2C_ACK);
-    reg0F <<= 8;
-    reg0F |= I2CReadByte(I2C_NOACK);
+
+    reg0A = I2CReadWord(I2C_ACK);
+    reg0B = I2CReadWord(I2C_ACK);
+
+    // RDS data
+    rdsRaw.B1 = I2CReadWord(I2C_ACK);
+    rdsRaw.B2 = I2CReadWord(I2C_ACK);
+    rdsRaw.B3 = I2CReadWord(I2C_ACK);
+    rdsRaw.B4 = I2CReadWord(I2C_NOACK);
+
     I2CStop();
 
     Tuner.level = (reg0B & RDA580X_0B_RSSI) >> 9;
 
-    Tuner.RDSR = (reg0A & RDA5807_0A_RDSR) ? 1 : 0;
     Tuner.STC = (reg0A & RDA580X_0A_STC) ? 1 : 0;
     Tuner.SF = (reg0A & RDA580X_0A_SF) ? 1 : 0;
-    Tuner.RDSS = (reg0A & RDA5807_0A_RDSS) ? 1 : 0;
     Tuner.BLK_E = (reg0A & RDA5807_0A_BLK_E) ? 1 : 0;
     Tuner.ST = (reg0A & RDA580X_0A_ST) ? 1 : 0;
 
     Tuner.FM_TRUE = (reg0B & RDA580X_0B_FM_TRUE) ? 1 : 0;
     Tuner.FM_READY = (reg0B & RDA580X_0B_FM_READY) ? 1 : 0;
-    Tuner.ABCD_E = (reg0B & RDA5807_0B_ABCD_E) ? 1 : 0;
-    Tuner.BLERA = (reg0B & RDA5807_0B_BLERA) >> 2;
-    Tuner.BLERB = (reg0B & RDA5807_0B_BLERB);
 
-    if (Tuner.RDSR && Tuner.RDSS) {
-        if (Tuner.BLERA == 0 && Tuner.BLERB == 0) {
-            Tuner.RDS_A = reg0C;
-            Tuner.RDS_B = reg0D;
-            Tuner.RDS_C = reg0E;
-            Tuner.RDS_D = reg0F;
-        }
-    }
+    Tuner.rdsReady = (reg0A & RDA5807_0A_RDSR) &&   // RDS ready
+            (reg0A & RDA5807_0A_RDSS) &&            // RDS synchronized
+            ((reg0B & RDA5807_0B_BLERA) == 0) &&    // No errors in A
+            ((reg0B & RDA5807_0B_BLERB) == 0);      // No errors in B
+    Tuner.rdsBlockE = (reg0B & RDA5807_0B_ABCD_E) ? 1 : 0;
+
+    if (Tuner.rdsReady)
+        rdsDecode();
 
     uint16_t chan = reg0A & RDA580X_0A_READCHAN;
 
     Tuner.eep.freq = chan * RDA5807_CHAN_SPACING + RDA5807_MIN_FREQ;
-}
-
-
-uint8_t rda580xGetRDSR()
-{
-    return (reg0A & RDA5807_0A_RDSR) ? 1 : 0;
-}
-
-uint16_t rda580xGetFreq()
-{
-    uint16_t chan = reg0A & RDA580X_0A_READCHAN;
-
-    return chan * RDA5807_CHAN_SPACING + RDA5807_MIN_FREQ;
 }
 
 void rda580xSeek(int8_t direction)
@@ -185,4 +157,6 @@ void rda580xSeek(int8_t direction)
         reg02 &= ~RDA580X_02_SEEKUP;
     }
     rda580xWriteReg(2, reg02);
+
+    rdsClear();
 }

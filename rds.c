@@ -1,27 +1,58 @@
 #include "rds.h"
-#include "tuner.h"
-#include "eeprom.h"
+#include "string.h"
 
-static char psText[9] = "        ";
+RdsRaw_t rdsRaw;
+RdsData_t rdsData;
+
+#define CHAR_OK(x) ((x) >= 0x20 && (x) <= 0x80)
 
 void rdsDecode()
 {
-    uint8_t group = (Tuner.RDS_B & 0xF000) >> 12;
-    uint8_t index = (Tuner.RDS_B & 0x0003);
+    uint16_t group;
+    uint8_t index;
+    uint8_t ch;
 
-    uint8_t i;
-    uint8_t rdsChar;
+    group = rdsRaw.B2 & 0xF800;
 
-    if (group == 0) {
-        for (i = 0; i < 2; i++) {
-            rdsChar = (Tuner.RDS_D >> (i ? 0 : 8)) & 0xFF;
-            if (rdsChar >= 0x20 && rdsChar <= 0x80)
-                psText[2 * index + i] = rdsChar;
-        }
+    switch (group) {
+    case GROUP_0:
+    case GROUP_15B:
+        index = rdsRaw.B2L & 0x03;
+
+        ch = rdsRaw.B4H;
+        if (CHAR_OK(ch))
+            rdsData.ps[2 * index] = ch;
+
+        ch = rdsRaw.B4L;
+        if (CHAR_OK(ch))
+            rdsData.ps[2 * index + 1] = ch;
+
+        break;
+    case GROUP_2A:
+        index = rdsRaw.B2L & 0x03; // 0x0F really, but will limit 16 chars
+
+        ch = rdsRaw.B3H;
+        if (CHAR_OK(ch))
+            rdsData.text[4 * index] = ch;
+        ch = rdsRaw.B3L;
+        if (CHAR_OK(ch))
+            rdsData.text[4 * index + 1] = ch;
+        ch = rdsRaw.B4H;
+        if (CHAR_OK(ch))
+            rdsData.text[4 * index + 2] = ch;
+        ch = rdsRaw.B4L;
+        if (CHAR_OK(ch))
+            rdsData.text[4 * index + 3] = ch;
+
+        break;
+    default:
+        break;
     }
 }
 
-char *rdsPsText(void)
+void rdsClear()
 {
-	return psText;
+    memset(&rdsData, 0, sizeof(RdsData_t));
+    memset(&rdsData.ps, ' ', 8);
+    memset(&rdsData.text, '-', 16);
 }
