@@ -1,6 +1,6 @@
 #include "eeprom.h"
 #include <avr/eeprom.h>
-#include "tuner.h"
+#include "tuner/tuner.h"
 
 Tuner_t Tuner;
 

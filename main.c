@@ -8,7 +8,7 @@
 #include "screen.h"
 #include "input.h"
 #include "i2c.h"
-#include "tuner.h"
+#include "tuner/tuner.h"
 
 #include <util/delay.h>
 #include "pins.h"

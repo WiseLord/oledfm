@@ -6,7 +6,16 @@ MCU      = atmega328p
 F_CPU    = 16000000
 
 # Source files
-SRCS     = $(wildcard *.c)
+SRCS     = main.c
+SRCS    += $(wildcard font*.c) icons.c
+SRCS    += ssd1306.c glcd.c
+SRCS    += screen.c
+SRCS    += i2c.c
+SRCS    += input.c
+SRCS    += eeprom.c
+SRCS    += tuner/tuner.c
+SRCS    += tuner/rda580x.c
+SRCS    += tuner/rds.c
 
 # Build directory
 BUILDDIR = build

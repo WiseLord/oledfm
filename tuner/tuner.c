@@ -3,7 +3,7 @@
 
 #include <stddef.h>
 #include <avr/eeprom.h>
-#include "eeprom.h"
+#include "../eeprom.h"
 
 typedef struct {
     void (*Init)();

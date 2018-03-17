@@ -1,9 +1,9 @@
 #include "screen.h"
 
 #include "glcd.h"
-#include "tuner.h"
+#include "tuner/tuner.h"
 #include "eeprom.h"
-#include "rds.h"
+#include "tuner/rds.h"
 
 #define STR_BUFSIZE                     20
 

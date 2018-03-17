@@ -2,8 +2,8 @@
 
 #include <avr/pgmspace.h>
 #include <util/delay.h>
-#include "i2c.h"
-#include "eeprom.h"
+#include "../i2c.h"
+#include "../eeprom.h"
 
 #include "rds.h"
 

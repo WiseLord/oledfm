@@ -1,3 +1,11 @@
+tuner/rda580x.c
+tuner/tuner.h
+tuner/tuner.c
+tuner/rds.h
+tuner/rds.c
+tuner/rda580x.h
+tuner/rda580x.h
+tuner/rda580x.c
 eeprom.c
 eeprom.h
 font-matrix-16.c
