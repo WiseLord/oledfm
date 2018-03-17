@@ -6,7 +6,6 @@ tuner/rds.c
 tuner/rda580x.h
 tuner/rda580x.h
 tuner/rda580x.c
-eeprom.c
 eeprom.h
 font-matrix-16.c
 rds.c

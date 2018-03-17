@@ -12,10 +12,11 @@ SRCS    += ssd1306.c glcd.c
 SRCS    += screen.c
 SRCS    += i2c.c
 SRCS    += input.c
-SRCS    += eeprom.c
 SRCS    += tuner/tuner.c
 SRCS    += tuner/rda580x.c
 SRCS    += tuner/rds.c
+
+DEFINES += -D_RDA580X -D_RDS
 
 # Build directory
 BUILDDIR = build
@@ -60,7 +61,7 @@ size:
 
 $(BUILDDIR)/%.o: %.c
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) $(DEFINES) -c -o $@ $<
 
 .PHONY: clean
 clean:

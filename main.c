@@ -14,6 +14,23 @@
 #include "pins.h"
 #include "eeprom.h"
 
+#define VOL_MIN             0
+#define VOL_MAX             16
+
+void setVolume(int8_t value)
+{
+    if (value > VOL_MAX)
+        value = VOL_MAX;
+    if (value < VOL_MIN)
+        value = VOL_MIN;
+
+    tunerSetVolume(value);
+    if (value)
+        tunerSetMute(0);
+
+    return;
+}
+
 void hwInit()
 {
     glcdInit();
@@ -28,7 +45,8 @@ void hwInit()
     TIMSK0 |= (1 << OCIE0A);    // Input timer compare
     sei();
 
-    tunerInit(TUNER_RDA5807);
+    tunerInit();
+    tunerSetVolume(tuner.volume);
 
     OUT(LED_RED);
 }
@@ -87,6 +105,7 @@ int main(void)
             switch (Screen) {
             case SCREEN_MAIN:
                 tunerSeek(-1);
+//                tunerNextStation(-1);
                 break;
             default:
                 break;
@@ -96,6 +115,7 @@ int main(void)
             switch (Screen) {
             case SCREEN_MAIN:
                 tunerSeek(+1);
+//                tunerNextStation(+1);
                 break;
             default:
                 break;
@@ -104,16 +124,15 @@ int main(void)
         case BTN_0_LONG:
             switch (Screen) {
             case SCREEN_STANDBY:
-                eepRestoreTuner();
-                tunerSetPower(1);
-                tunerSetFreq(Tuner.eep.freq);
-                tunerSetVolume(Tuner.eep.volume);
+                tunerPowerOn();
+                tunerSetMute(0);
+                setVolume(tuner.volume);
+                tunerSetFreq();
                 screenSet(SCREEN_MAIN);
                 timerSleepSet(SLEEP_TIMER_WORK);
                 break;
             case SCREEN_MAIN:
-                eepSaveTuner();
-                tunerSetPower(0);
+                tunerPowerOff();
                 screenSet(SCREEN_STANDBY);
                 timerSleepSet(SLEEP_TIMER_STANDBY);
                 break;
@@ -124,7 +143,7 @@ int main(void)
         case BTN_1_LONG:
             switch (Screen) {
             case SCREEN_MAIN:
-                tunerSetVolume(Tuner.eep.volume - 1);
+                setVolume(tuner.volume - 1);
                 break;
             default:
                 break;
@@ -133,7 +152,7 @@ int main(void)
         case BTN_2_LONG:
             switch (Screen) {
             case SCREEN_MAIN:
-                tunerSetVolume(Tuner.eep.volume + 1);
+                setVolume(tuner.volume + 1);
                 break;
             default:
                 break;

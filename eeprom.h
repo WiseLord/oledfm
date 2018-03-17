@@ -3,33 +3,22 @@
 
 #include <inttypes.h>
 
-typedef struct {
-    uint16_t freq;
-    uint8_t volume;
-    uint8_t ic;
-} EepTuner_t;
+// FM tuner parameters valus
+#define EEPROM_FM_TUNER             0x70
+#define EEPROM_FM_CTRL              (EEPROM_FM_TUNER + 0x01)
+#define EEPROM_FM_STEP1             (EEPROM_FM_TUNER + 0x02)
+#define EEPROM_FM_STEP2             (EEPROM_FM_TUNER + 0x03)
+#define EEPROM_FM_FREQ_MIN          (EEPROM_FM_TUNER + 0x04)
+#define EEPROM_FM_FREQ_MAX          (EEPROM_FM_TUNER + 0x06)
+#define EEPROM_FM_FREQ              (EEPROM_FM_TUNER + 0x08)
+#define EEPROM_FM_MONO              (EEPROM_FM_TUNER + 0x0A)
+#define EEPROM_FM_RDS               (EEPROM_FM_TUNER + 0x0B)
+#define EEPROM_FM_VOLUME            (EEPROM_FM_TUNER + 0x0C)
+#define EEPROM_FM_MUTE              (EEPROM_FM_TUNER + 0x0D)
+#define EEPROM_FM_BASS              (EEPROM_FM_TUNER + 0x0E)
 
-typedef struct {
-    EepTuner_t eep;
-    uint8_t level;
-
-    uint8_t STC:1;
-    uint8_t SF:1;
-    uint8_t BLK_E:1;
-    uint8_t ST:1;
-
-    uint8_t FM_TRUE:1;
-    uint8_t FM_READY:1;
-
-    uint8_t rdsReady:1;
-    uint8_t rdsBlockE:1;
-} Tuner_t;
-
-extern Tuner_t Tuner;
-
-#define EEPROM_TUNER        0x00
-
-void eepSaveTuner();
-void eepRestoreTuner();
+// FM stations
+#define EEPROM_FAV_STATIONS         (EEPROM_FM_TUNER + 0x10)
+#define EEPROM_STATIONS             (EEPROM_FM_TUNER + 0x24)
 
 #endif // EEPROM_H

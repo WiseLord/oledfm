@@ -1,58 +1,53 @@
 #include "rds.h"
-#include "string.h"
 
-RdsRaw_t rdsRaw;
-RdsData_t rdsData;
+static char rdsText[9];
+static uint8_t rdsFlag = 0;
 
-#define CHAR_OK(x) ((x) >= 0x20 && (x) <= 0x80)
-
-void rdsDecode()
+char *rdsGetText()
 {
-    uint16_t group;
-    uint8_t index;
-    uint8_t ch;
+    return rdsText;
+}
 
-    group = rdsRaw.B2 & 0xF800;
+void rdsSetBlocks(uint8_t *rdsBlock)
+{
+    // rdsBlock[0..1] - RDS block A
+    // rdsBlock[2..3] - RDS block B
+    // rdsBlock[4..5] - RDS block C
+    // rdsBlock[6..7] - RDS block D
 
-    switch (group) {
-    case GROUP_0:
-    case GROUP_15B:
-        index = rdsRaw.B2L & 0x03;
+    uint8_t i;
+    char rdsChar;
 
-        ch = rdsRaw.B4H;
-        if (CHAR_OK(ch))
-            rdsData.ps[2 * index] = ch;
+    uint8_t rdsVersion = (rdsBlock[2] & 0x08) >> 3;
+    uint8_t rdsGroup   = (rdsBlock[2] & 0xF0) >> 4;
+    uint8_t rdsIndex   = (rdsBlock[3] & 0x03) >> 0;
 
-        ch = rdsRaw.B4L;
-        if (CHAR_OK(ch))
-            rdsData.ps[2 * index + 1] = ch;
-
-        break;
-    case GROUP_2A:
-        index = rdsRaw.B2L & 0x03; // 0x0F really, but will limit 16 chars
-
-        ch = rdsRaw.B3H;
-        if (CHAR_OK(ch))
-            rdsData.text[4 * index] = ch;
-        ch = rdsRaw.B3L;
-        if (CHAR_OK(ch))
-            rdsData.text[4 * index + 1] = ch;
-        ch = rdsRaw.B4H;
-        if (CHAR_OK(ch))
-            rdsData.text[4 * index + 2] = ch;
-        ch = rdsRaw.B4L;
-        if (CHAR_OK(ch))
-            rdsData.text[4 * index + 3] = ch;
-
-        break;
-    default:
-        break;
+    if (rdsVersion == (0x00 & 0x08)) {                      // RDS version = 0
+        if (rdsGroup == (0x00 & 0xF0)) {                    // RDS group = 0 (RDS0)
+            for (i = 0; i < 2; i++) {
+                rdsChar = rdsBlock[6 + i];
+                if (rdsChar >= 0x20 && rdsChar < 0x80)
+                    rdsText[rdsIndex * 2 + i] = rdsChar;
+            }
+            rdsFlag = RDS_FLAG_INIT;
+        }
     }
 }
 
-void rdsClear()
+void rdsDisable()
 {
-    memset(&rdsData, 0, sizeof(RdsData_t));
-    memset(&rdsData.ps, ' ', 8);
-    memset(&rdsData.text, '-', 16);
+    uint8_t i;
+
+    for (i = 0; i < 8; i++)
+        rdsText[i] = ' ';
+
+    rdsFlag = 0;
+}
+
+uint8_t rdsGetFlag()
+{
+    if (rdsFlag)
+        rdsFlag--;
+
+    return rdsFlag;
 }

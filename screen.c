@@ -55,22 +55,23 @@ static void drawScreenMain()
 
     glcdLoadFont(font_ks0066_ru_24, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
     glcdSetXY(36, 2);
-    glcdWriteString(mkNumString(Tuner.eep.freq, 6, 2, ' '));
+    glcdWriteString(mkNumString(tuner.freq, 6, 2, ' '));
 
     glcdLoadFont(font_matrix_16, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
     glcdSetXY(106, 20);
-    glcdWriteString(mkNumString(Tuner.eep.volume, 2, 0, ' '));
+    glcdWriteString(mkNumString(tuner.volume, 2, 0, ' '));
     glcdSetXY(104, 40);
-    glcdWriteIcon(Tuner.eep.volume ? icon_volume : icon_mute, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
+    glcdWriteIcon(tuner.volume ? icon_volume : icon_mute, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
 
     glcdLoadFont(font_matrix_16, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
     glcdSetFontFixed(12);
     glcdSetXY(0, 48);
-    glcdWriteString(rdsData.ps);
+//    glcdWriteString(rdsData.ps);
 
     glcdLoadFont(font_ks0066_ru_08, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
     glcdSetXY(0, 36);
-    glcdWriteString(rdsData.text);
+    if (rdsGetFlag())
+        glcdWriteLcdString(rdsGetText());
 }
 
 void screenSet(uint8_t value)
@@ -78,7 +79,7 @@ void screenSet(uint8_t value)
     if (Screen != value)
         glcdFill(LCD_COLOR_BLACK);
 
-    tunerUpdateStatus();
+    tunerReadStatus();
 
     switch (value) {
     case SCREEN_STANDBY:
