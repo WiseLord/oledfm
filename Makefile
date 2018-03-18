@@ -13,12 +13,12 @@ SRCS    += screen.c
 SRCS    += i2c.c
 SRCS    += input.c
 SRCS    += tuner/tuner.c
-#SRCS    += tuner/rda580x.c
-SRCS    += tuner/si470x.c
+SRCS    += tuner/rda580x.c
+#SRCS    += tuner/si470x.c
 SRCS    += tuner/rds.c
 
-#DEFINES += -D_RDA580X -D_RDS
-DEFINES += -D_SI470X -D_RDS
+DEFINES += -D_RDA580X -D_RDS
+#DEFINES += -D_SI470X -D_RDS
 
 # Build directory
 BUILDDIR = build

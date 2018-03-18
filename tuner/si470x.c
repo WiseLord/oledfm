@@ -134,6 +134,7 @@ void si470xSetMute(uint8_t value)
     } else {
         wrBuf[0] |= SI470X_DMUTE;
     }
+
     si470xWriteI2C(2);
 }
 
@@ -144,6 +145,7 @@ void si470xSetMono(uint8_t value)
     } else {
         wrBuf[0] &= ~SI470X_MONO;
     }
+
     si470xWriteI2C(2);
 }
 
@@ -157,6 +159,7 @@ void si470xSetRds(uint8_t value)
     } else {
         wrBuf[4] &= ~SI470X_RDS;
     }
+
     si470xWriteI2C(6);
 }
 #endif
@@ -170,6 +173,7 @@ void si470xSetPower(uint8_t value)
     } else {
         wrBuf[1] |= SI470X_DISABLE;
     }
+
     si470xWriteI2C(4);
 }
 

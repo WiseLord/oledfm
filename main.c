@@ -36,7 +36,9 @@ void hwInit()
     inputInit();
     screenInit();
 
+#ifdef _SI470X
     si470xReset();
+#endif
     I2CInit();
 
     // Setup sleep mode
@@ -136,7 +138,8 @@ int main(void)
             switch (Screen) {
             default:
 //                tunerSetMono(!tuner.mono);
-                tunerSetRDS(!tuner.rds);
+//                tunerSetRDS(!tuner.rds);
+                tunerSetBass(!tuner.bass);
                 break;
             }
             break;
