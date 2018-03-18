@@ -110,7 +110,9 @@ void rda580xReadStatus()
         chan <<= 8;
         chan |= tunerRdbuf[1];
 
-        tuner.freq = chan * RDA5807_CHAN_SPACING + fMin;
+        tuner.rdFreq = chan * RDA5807_CHAN_SPACING + fMin;
+    } else {
+        tuner.rdFreq = tuner.freq;
     }
 }
 

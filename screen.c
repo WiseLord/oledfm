@@ -2,6 +2,7 @@
 
 #include "glcd.h"
 #include "tuner/tuner.h"
+#include <avr/eeprom.h>
 #include "eeprom.h"
 #include "tuner/rds.h"
 
@@ -55,7 +56,7 @@ static void drawScreenMain()
 
     glcdLoadFont(font_ks0066_ru_24, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
     glcdSetXY(36, 2);
-    glcdWriteString(mkNumString(tuner.freq, 6, 2, ' '));
+    glcdWriteString(mkNumString(tuner.rdFreq, 6, 2, ' '));
 
     glcdLoadFont(font_matrix_16, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
     glcdSetXY(106, 20);
@@ -66,12 +67,22 @@ static void drawScreenMain()
     glcdLoadFont(font_matrix_16, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
     glcdSetFontFixed(12);
     glcdSetXY(0, 48);
-//    glcdWriteString(rdsData.ps);
-
-    glcdLoadFont(font_ks0066_ru_08, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
-    glcdSetXY(0, 36);
     if (rdsGetFlag())
-        glcdWriteLcdString(rdsGetText());
+        glcdWriteString(rdsGetText());
+    else
+        glcdWriteString("        ");
+//    glcdWriteString("testadbc");
+
+//    glcdLoadFont(font_ks0066_ru_08, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
+//    glcdSetXY(0, 36);
+//    if (rdsGetFlag())
+//        glcdWriteString(rdsGetText());
+//    glcdWriteString(mkNumString(tunerRdbuf[0], 3, 0, '0'));
+//    glcdSetXY(0, 48);
+
+//    glcdWriteString(mkNumString(tunerRdbuf[1], 3, 0, ' '));
+//    glcdSetXY(0, 56);
+//    glcdWriteString(mkNumString(tuner.freq, 5, 0, ' '));
 }
 
 void screenSet(uint8_t value)

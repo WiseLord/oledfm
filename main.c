@@ -36,6 +36,8 @@ void hwInit()
     glcdInit();
     inputInit();
     screenInit();
+
+    si470xReset();
     I2CInit();
 
     // Setup sleep mode

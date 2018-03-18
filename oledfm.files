@@ -1,4 +1,6 @@
 tuner/rda580x.c
+tuner/si470x.c
+tuner/si470x.h
 tuner/tuner.h
 tuner/tuner.c
 tuner/rds.h
