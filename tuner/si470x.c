@@ -51,14 +51,16 @@ void si470xInit()
 {
     initRegs();
 
-    wrBuf[0] = SI470X_DSMUTE | SI470X_DMUTE | SI470X_SEEKUP;
+    wrBuf[0] = /*SI470X_DMUTE | */SI470X_SEEKUP;
     wrBuf[4] = SI470X_DE; // 50us used in Europe
-    wrBuf[6] = SI470X_SEEKTH & 25;
-    wrBuf[7] = SI470X_BAND_JAPAN_WIDE | SI470X_SPACE_50;
+    wrBuf[7] = SI470X_BAND_JAPAN_WIDE | SI470X_SPACE_100;
+
+    wrBuf[6] = SI470X_SEEKTH & 12; // 25 by default for backward compatibility
+    wrBuf[9] = (SI470X_SKSNR & 0b00010000) | (SI470X_SKCNT & 0b00000001);
 
     wrBuf[10] |= SI470X_XOSCEN;
 
-//    wrBuf[0] |= SI470X_RDSM;
+    wrBuf[0] |= SI470X_RDSM; // New method
     wrBuf[4] |= SI470X_RDS;
 
     si470xWriteI2C(sizeof(wrBuf));
@@ -97,14 +99,15 @@ void si470xReadStatus()
 #ifdef _RDS
     if (tuner.rds) {
         // If RDS ready and sync flag is set
-        if ((tunerRdbuf[0] & SI740X_RDSR)) {
-//        if ((tunerRdbuf[0] & SI740X_RDSR) && (tunerRdbuf[0] & SI740X_RDSS)) {
-//            // If there are no errors in blocks A-D
-//            if (!((tunerRdbuf[0] & SI740X_BLERA) ||
-//                  (tunerRdbuf[2] & (SI740X_BLERB | SI740X_BLERC | SI740X_BLERD)))) {
+        if ((tunerRdbuf[0] & SI740X_RDSR) && (tunerRdbuf[0] & SI740X_RDSS)) {
+            // If there are no non-correctable errors in blocks A-D
+            if (    (tunerRdbuf[0] & SI740X_BLERA) != SI740X_BLERA &&
+                    (tunerRdbuf[2] & SI740X_BLERB) != SI740X_BLERB &&
+                    (tunerRdbuf[2] & SI740X_BLERC) != SI740X_BLERC &&
+                    (tunerRdbuf[2] & SI740X_BLERD) != SI740X_BLERD ) {
                 // Send rdBuf[4..11] as 16-bit blocks A-D
                 rdsSetBlocks(&tunerRdbuf[4]);
-//            }
+            }
         }
     }
 #endif
@@ -126,30 +129,42 @@ void si470xSetVolume(int8_t value)
 
 void si470xSetMute(uint8_t value)
 {
-//
-}
-
-void si470xSetBass(uint8_t value)
-{
-
+    if (value) {
+        wrBuf[0] &= ~SI470X_DMUTE;
+    } else {
+        wrBuf[0] |= SI470X_DMUTE;
+    }
+    si470xWriteI2C(2);
 }
 
 void si470xSetMono(uint8_t value)
 {
-
+    if (value) {
+        wrBuf[0] |= SI470X_MONO;
+    } else {
+        wrBuf[0] &= ~SI470X_MONO;
+    }
+    si470xWriteI2C(2);
 }
 
 #ifdef _RDS
 void si470xSetRds(uint8_t value)
 {
+    rdsDisable();
 
+    if (value) {
+        wrBuf[4] |= SI470X_RDS;
+    } else {
+        wrBuf[4] &= ~SI470X_RDS;
+    }
+    si470xWriteI2C(6);
 }
 #endif
 
 
 void si470xSetPower(uint8_t value)
 {
-     wrBuf[1] |= SI470X_ENABLE;
+    wrBuf[1] |= SI470X_ENABLE;
     if (value) {
         wrBuf[1] &= ~SI470X_DISABLE;
     } else {

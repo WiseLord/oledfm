@@ -62,7 +62,24 @@ static void drawScreenMain()
     glcdSetXY(106, 20);
     glcdWriteString(mkNumString(tuner.volume, 2, 0, ' '));
     glcdSetXY(104, 40);
-    glcdWriteIcon(tuner.volume ? icon_volume : icon_mute, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
+    glcdWriteIcon(tuner.volume && !tuner.mute ? icon_volume : icon_mute, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
+
+    // stereo/mono/mute test
+    glcdSetXY(106, 0);
+    if (tuner.mono) {
+        glcdWriteString("M");
+    } else {
+        if (tunerStereo()) {
+            glcdWriteString("S");
+        } else {
+            glcdWriteString("-");
+        }
+    }
+    if (tuner.rds) {
+        glcdWriteString("R");
+    } else {
+        glcdWriteString("-");
+    }
 
     glcdLoadFont(font_matrix_16, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
     glcdSetFontFixed(12);
@@ -71,18 +88,6 @@ static void drawScreenMain()
         glcdWriteString(rdsGetText());
     else
         glcdWriteString("        ");
-//    glcdWriteString("testadbc");
-
-//    glcdLoadFont(font_ks0066_ru_08, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
-//    glcdSetXY(0, 36);
-//    if (rdsGetFlag())
-//        glcdWriteString(rdsGetText());
-//    glcdWriteString(mkNumString(tunerRdbuf[0], 3, 0, '0'));
-//    glcdSetXY(0, 48);
-
-//    glcdWriteString(mkNumString(tunerRdbuf[1], 3, 0, ' '));
-//    glcdSetXY(0, 56);
-//    glcdWriteString(mkNumString(tuner.freq, 5, 0, ' '));
 }
 
 void screenSet(uint8_t value)

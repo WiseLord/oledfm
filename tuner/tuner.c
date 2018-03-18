@@ -238,6 +238,7 @@ uint8_t tunerStereo()
 #endif
 #ifdef _SI470X
     case TUNER_SI470X:
+        ret = SI470X_BUF_STEREO(tunerRdbuf);
         break;
 #endif
     default:
@@ -508,6 +509,7 @@ void tunerPowerOn()
 
 void tunerPowerOff()
 {
+    tuner.freq = tuner.rdFreq;
     eeprom_update_block(&tuner, (void *)EEPROM_FM_TUNER, EEPROM_FM_TUNER_SIZE);
 
     switch (tuner.ic) {

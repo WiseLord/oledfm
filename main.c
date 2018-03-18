@@ -15,7 +15,7 @@
 #include "eeprom.h"
 
 #define VOL_MIN             0
-#define VOL_MAX             16
+#define VOL_MAX             15
 
 void setVolume(int8_t value)
 {
@@ -25,8 +25,7 @@ void setVolume(int8_t value)
         value = VOL_MIN;
 
     tunerSetVolume(value);
-    if (value)
-        tunerSetMute(0);
+    tunerSetMute(!tuner.volume);
 
     return;
 }
@@ -83,10 +82,10 @@ int main(void)
     timerSleepSet(SLEEP_TIMER_STANDBY);
 
     // Temporary power on the device
-    _delay_ms(200);
+    _delay_ms(400);
     tunerPowerOn();
-    tunerSetMute(0);
     setVolume(tuner.volume);
+    tunerSetMono(0);
     tunerSetFreq();
     screenSet(SCREEN_MAIN);
     timerSleepSet(SLEEP_TIMER_WORK);
@@ -136,6 +135,8 @@ int main(void)
         case BTN_3:
             switch (Screen) {
             default:
+//                tunerSetMono(!tuner.mono);
+                tunerSetRDS(!tuner.rds);
                 break;
             }
             break;
@@ -143,7 +144,6 @@ int main(void)
             switch (Screen) {
             case SCREEN_STANDBY:
                 tunerPowerOn();
-                tunerSetMute(0);
                 setVolume(tuner.volume);
                 tunerSetFreq();
                 screenSet(SCREEN_MAIN);

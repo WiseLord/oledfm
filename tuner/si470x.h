@@ -116,9 +116,11 @@
 
 // Some useful definitions
 
-#define SI470X_RDBUF_SIZE          12
+#define SI470X_BUF_STEREO(buf)      (buf[0] & SI740X_ST)
 
-#define SI470X_CHAN_SPACING         5
+#define SI470X_RDBUF_SIZE           12
+
+#define SI470X_CHAN_SPACING         10
 
 #define SI470X_VOL_MIN              0
 #define SI470X_VOL_MAX              15
@@ -133,7 +135,6 @@ void si470xReadStatus();
 
 void si470xSetVolume(int8_t value);
 void si470xSetMute(uint8_t value);
-void si470xSetBass(uint8_t value);
 
 void si470xSetMono(uint8_t value);
 #ifdef _RDS
