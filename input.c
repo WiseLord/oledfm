@@ -13,10 +13,12 @@ void inputInit(void)
     IN(BUTTON_0);
     IN(BUTTON_1);
     IN(BUTTON_2);
+    IN(BUTTON_3);
     // Enable pull-up resistors
     SET(BUTTON_0);
     SET(BUTTON_1);
     SET(BUTTON_2);
+    SET(BUTTON_3);
 
     TCCR0A = (1 << WGM01);                  // CTC mode
     TCCR0B = (1 << CS02) | (1 << CS00);     // PSK = 1024
@@ -36,6 +38,8 @@ ISR(TIMER0_COMPA_vect, ISR_NOBLOCK)        // TIME_STEP_FREQ = 125 Hz
         btnNow |= BTN_1;
     if (~PIN(BUTTON_2) & BUTTON_2_LINE)
         btnNow |= BTN_2;
+    if (~PIN(BUTTON_3) & BUTTON_3_LINE)
+        btnNow |= BTN_3;
 
     // If button event has happened, place it to command buffer
     if (btnNow) {

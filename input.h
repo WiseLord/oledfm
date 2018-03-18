@@ -11,14 +11,14 @@
 #define BTN_0_LONG              (BTN_0 << 4)
 #define BTN_1_LONG              (BTN_1 << 4)
 #define BTN_2_LONG              (BTN_2 << 4)
-#define BTN_4_LONG              (BTN_3 << 4)
+#define BTN_3_LONG              (BTN_3 << 4)
 
 // Handling long press actions
 #define SHORT_PRESS             12
 #define LONG_PRESS              96
 #define AUTOREPEAT              60
 
-#define SLEEP_TIMER_WORK        1250  // 10 sec
+#define SLEEP_TIMER_WORK        1250*5  // 10 sec
 #define SLEEP_TIMER_STANDBY     250   // 2 sec
 
 void inputInit(void);

@@ -58,7 +58,7 @@ void sleep(void)
     // Prepare sleep
     TIMSK0 &= ~(1 << OCIE0A);   // Input timer compare disable
 
-    PCMSK2 = BUTTON_0_LINE | BUTTON_1_LINE | BUTTON_2_LINE;
+    PCMSK2 = BUTTON_0_LINE | BUTTON_1_LINE | BUTTON_2_LINE | BUTTON_3_LINE;
     if (Screen == SCREEN_STANDBY)
         PCMSK2 = BUTTON_0_LINE;
     PCICR |= (1<<PCIE2);        // Buttons interrupt enable
@@ -81,6 +81,16 @@ int main(void)
     screenSet(SCREEN_STANDBY);
     screenUpdate();
     timerSleepSet(SLEEP_TIMER_STANDBY);
+
+    // Temporary power on the device
+    _delay_ms(200);
+    tunerPowerOn();
+    tunerSetMute(0);
+    setVolume(tuner.volume);
+    tunerSetFreq();
+    screenSet(SCREEN_MAIN);
+    timerSleepSet(SLEEP_TIMER_WORK);
+
 
     while (1) {
         uint8_t btnCmd = getBtnCmd();
@@ -123,6 +133,12 @@ int main(void)
                 break;
             }
             break;
+        case BTN_3:
+            switch (Screen) {
+            default:
+                break;
+            }
+            break;
         case BTN_0_LONG:
             switch (Screen) {
             case SCREEN_STANDBY:
@@ -156,6 +172,12 @@ int main(void)
             case SCREEN_MAIN:
                 setVolume(tuner.volume + 1);
                 break;
+            default:
+                break;
+            }
+            break;
+        case BTN_3_LONG:
+            switch (Screen) {
             default:
                 break;
             }
