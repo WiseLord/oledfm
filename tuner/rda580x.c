@@ -8,7 +8,7 @@
 #include "rds.h"
 #endif
 
-static uint8_t wrBuf[14] = {
+static uint8_t wrBuf[12] = {
     RDA580X_DHIZ,
     RDA580X_SKMODE | RDA580X_CLK_MODE_32768 | RDA5807_NEW_METHOD,
     0,
@@ -21,11 +21,7 @@ static uint8_t wrBuf[14] = {
     0,
     (0x40 & RDA5807_TH_SOFRBLEND) | RDA5807_65M_50M_MODE,
     0,
-    0,
-    0,
 };
-
-static uint16_t fMin;
 
 static void rda580xWriteReg(uint8_t reg)
 {
@@ -44,41 +40,18 @@ void rda580xInit()
 #ifdef _RDS
     rda580xSetRds(tuner.rds);
 #endif
-    if (tuner.ic == TUNER_RDA5807_DF) {
-        wrBuf[11] |= RDA5807_FREQ_MODE;
-        rda580xWriteReg(7);
-    }
 }
 
 void rda580xSetFreq()
 {
     uint16_t chan;
-    uint8_t band = RDA580X_BAND_EASTEUROPE;
-
-    fMin = 6500;
-
-    if (tuner.freq >= 7600) {
-        fMin = 7600;
-        band = RDA580X_BAND_WORLDWIDE;
-    }
-    if (tuner.fMin >= 8700) {
-        fMin = 8700;
-        band = RDA580X_BAND_US_EUROPE;
-    }
 
     // Freq in grid
-    chan = (tuner.freq - fMin) / RDA5807_CHAN_SPACING;
+    chan = (tuner.freq - 7600) / RDA5807_CHAN_SPACING;
     wrBuf[2] = chan >> 2; // 8 MSB
-    wrBuf[3] = ((chan & 0x03) << 6) | RDA580X_TUNE | band | RDA580X_SPACE_50;
+    wrBuf[3] = ((chan & 0x03) << 6) | RDA580X_TUNE | RDA580X_BAND_WORLDWIDE | RDA580X_SPACE_100;
 
     rda580xWriteReg(3);
-
-    if (tuner.ic == TUNER_RDA5807_DF) {
-        uint16_t df = (tuner.freq - fMin) * 10;
-        wrBuf[13] = df & 0xFF;
-        wrBuf[12] = df >> 8;
-        rda580xWriteReg(8);
-    }
 }
 
 void rda580xReadStatus()
@@ -105,16 +78,11 @@ void rda580xReadStatus()
         }
     }
 #endif
+    uint16_t chan = tunerRdbuf[0] & RDA580X_READCHAN_9_8;
+    chan <<= 8;
+    chan |= tunerRdbuf[1];
 
-    if (tuner.ic != TUNER_RDA5807_DF) {
-        uint16_t chan = tunerRdbuf[0] & RDA580X_READCHAN_9_8;
-        chan <<= 8;
-        chan |= tunerRdbuf[1];
-
-        tuner.rdFreq = chan * RDA5807_CHAN_SPACING + fMin;
-    } else {
-        tuner.rdFreq = tuner.freq;
-    }
+    tuner.rdFreq = chan * RDA5807_CHAN_SPACING + 7600;
 }
 
 void rda580xSetVolume(int8_t value)
