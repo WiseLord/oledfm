@@ -19,11 +19,14 @@ static uint8_t wrBuf[14] = {
     RDA580X_LNA_PORT_SEL_LNAP | RDA580X_VOLUME,
     0,
     0,
-    (0x40 & RDA5807_TH_SOFRBLEND) | RDA5807_65M_50M_MODE,
+    (0x40 & RDA5807_TH_SOFRBLEND),
     0,
     0,
     0,
 };
+
+static uint8_t band = RDA580X_BAND_US_EUROPE;
+static uint16_t fBL = 8700;
 
 static void rda580xWriteReg(uint8_t reg)
 {
@@ -44,27 +47,51 @@ void rda580xInit()
 #endif
     if (tuner.ic == TUNER_RDA5807 && (tuner.ctrl & TUNER_DFREQ)) {
         wrBuf[11] |= RDA5807_FREQ_MODE;
+    } else {
+        wrBuf[11] &= RDA5807_FREQ_MODE;
     }
     rda580xWriteReg(7);
+
+    if (tuner.ctrl & TUNER_DE) {
+        wrBuf[4] &= ~RDA580X_DE;
+    } else {
+        wrBuf[4] |= RDA580X_DE;
+    }
+
+    if (tuner.ctrl & TUNER_SMUTE) {
+        wrBuf[4] |= RDA580X_SOFTMUTE_EN;
+    } else {
+        wrBuf[4] &= ~RDA580X_SOFTMUTE_EN;
+    }
+    rda580xWriteReg(4);
+
+    if (tuner.ctrl & TUNER_BL) {
+        fBL = 7600;
+        band = RDA580X_BAND_JAPAN;
+    } else {
+        if (tuner.fMin < 8700) {
+            fBL = 7600;
+            band = RDA580X_BAND_WORLDWIDE;
+        }
+    }
 }
 
 void rda580xSetFreq()
 {
-    uint16_t chan;
-
-    // Freq in grid
-    chan = (tuner.freq - 7600) / RDA5807_CHAN_SPACING;
-    wrBuf[2] = chan >> 2; // 8 MSB
-    wrBuf[3] = ((chan & 0x03) << 6) | RDA580X_TUNE | RDA580X_BAND_WORLDWIDE | RDA580X_SPACE_100;
-
-    rda580xWriteReg(3);
-
     if (wrBuf[11] & RDA5807_FREQ_MODE) {
-        uint16_t df = (tuner.freq - 7600) * 10;
+        uint16_t df = (tuner.freq - 5000) * 10;
         wrBuf[13] = df & 0xFF;
         wrBuf[12] = df >> 8;
         rda580xWriteReg(8);
+
+        wrBuf[3] = RDA580X_TUNE | RDA580X_BAND_EASTEUROPE | RDA580X_SPACE_100;
+    } else {
+        // Freq in grid
+        uint16_t chan = (tuner.freq - fBL) / RDA5807_CHAN_SPACING;
+        wrBuf[2] = chan >> 2; // 8 MSB
+        wrBuf[3] = ((chan & 0x03) << 6) | RDA580X_TUNE | band | RDA580X_SPACE_100;
     }
+    rda580xWriteReg(3);
 }
 
 void rda580xReadStatus()
@@ -101,7 +128,7 @@ void rda580xReadStatus()
         uint16_t chan = tunerRdbuf[0] & RDA580X_READCHAN_9_8;
         chan <<= 8;
         chan |= tunerRdbuf[1];
-        tuner.rdFreq = chan * RDA5807_CHAN_SPACING + 7600;
+        tuner.rdFreq = chan * RDA5807_CHAN_SPACING + fBL;
     }
 }
 
