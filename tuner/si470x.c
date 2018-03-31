@@ -110,7 +110,7 @@ void si470xReadStatus()
                     (tunerRdbuf[2] & SI740X_BLERC) != SI740X_BLERC &&
                     (tunerRdbuf[2] & SI740X_BLERD) != SI740X_BLERD ) {
                 // Send rdBuf[4..11] as 16-bit blocks A-D
-                rdsSetBlocks(&tunerRdbuf[4]);
+                rdsDecode(&tunerRdbuf[4]);
             }
         }
     }

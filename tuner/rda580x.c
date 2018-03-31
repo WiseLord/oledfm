@@ -96,10 +96,8 @@ void rda580xSetFreq()
 
 void rda580xReadStatus()
 {
-    uint8_t i;
-
     I2CStart(RDA5807M_I2C_SEQ_ADDR | I2C_READ);
-    for (i = 0; i < RDA5807_RDBUF_SIZE - 1; i++)
+    for (uint8_t i = 0; i < RDA5807_RDBUF_SIZE - 1; i++)
         tunerRdbuf[i] = I2CReadByte(I2C_ACK);
     tunerRdbuf[RDA5807_RDBUF_SIZE - 1] = I2CReadByte(I2C_NOACK);
     I2CStop();
@@ -111,9 +109,9 @@ void rda580xReadStatus()
         if ((tunerRdbuf[0] & RDA5807_RDSR) && (tunerRdbuf[0] & RDA5807_RDSS)) {
             // If there are no non-correctable errors in blocks A-D
             if (    (tunerRdbuf[3] & RDA5807_BLERA) != RDA5807_BLERA &&
-                    (tunerRdbuf[2] & RDA5807_BLERA) != RDA5807_BLERB ) {
+                    (tunerRdbuf[3] & RDA5807_BLERB) != RDA5807_BLERB ) {
                 // Send rdBuf[4..11] as 16-bit blocks A-D
-                rdsSetBlocks(&tunerRdbuf[4]);
+                rdsDecode(&tunerRdbuf[4]);
             }
         }
     }
