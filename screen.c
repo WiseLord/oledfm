@@ -66,24 +66,26 @@ static void drawScreenMain()
 
     // stereo/mono/mute test
     glcdSetXY(106, 0);
-    if (tuner.bass)
-        glcdWriteString("B");
-    else
+    glcdSetFontFixed(10);
+    if (tuner.mono) {
+        glcdWriteString("M");
+    } else {
+        if (tunerStereo()) {
+            glcdWriteString("S");
+        } else {
+            glcdWriteString("-");
+        }
+    }
+    glcdSetXY(118, 0);
+    if (tuner.rds) {
+        if (rdsGetFlag()) {
+            glcdWriteString("R");
+        } else {
+            glcdWriteString("-");
+        }
+    } else {
         glcdWriteString("N");
-//    if (tuner.mono) {
-//        glcdWriteString("M");
-//    } else {
-//        if (tunerStereo()) {
-//            glcdWriteString("S");
-//        } else {
-//            glcdWriteString("-");
-//        }
-//    }
-//    if (tuner.rds) {
-//        glcdWriteString("R");
-//    } else {
-//        glcdWriteString("-");
-//    }
+    }
 
     glcdLoadFont(font_matrix_16, LCD_COLOR_WHITE, LCD_COLOR_BLACK);
     glcdSetFontFixed(12);
