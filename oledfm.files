@@ -34,5 +34,7 @@ tuner/rds.c
 tuner/rds.h
 tuner/si470x.c
 tuner/si470x.h
+tuner/si47xx.c
+tuner/si47xx.h
 tuner/tuner.c
 tuner/tuner.h
